@@ -47,7 +47,7 @@ useEffect(()=>{
     }
   });
 
-},[])
+},[app,router])
 
 
 const loginAction = (e:any) =>{

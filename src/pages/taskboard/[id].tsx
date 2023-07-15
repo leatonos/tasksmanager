@@ -33,7 +33,7 @@ const db = getFirestore(app);
       console.log("Current data: ", doc.data());
       setData(JSON.stringify(doc.data()))
     });
-  },[])
+  },[db])
     
 
   return (

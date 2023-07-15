@@ -10,6 +10,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import router, { useRouter } from 'next/router';
+import { firebaseConfig } from '@/firebase-config';
 
 
 
@@ -17,15 +18,6 @@ const inter = Inter({ subsets: ['latin'] })
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAt3wp0YexPpjAIKaDml-vwl5kLc6bVWFA",
-  authDomain: "task-manager-91a09.firebaseapp.com",
-  projectId: "task-manager-91a09",
-  storageBucket: "task-manager-91a09.appspot.com",
-  messagingSenderId: "289175925633",
-  appId: "1:289175925633:web:b04a17c8d6029fc382ae80",
-  measurementId: "G-HCK9NCTBBV"
-};
 
 
 
@@ -35,13 +27,14 @@ export default function Home() {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-
   const router = useRouter()
 
-  const [dataResult, setData] = useState('data')
+  
+
+  const [dataResult, setData] = useState<string | null>('data')
 
   useEffect(() => {
+    
     //here we check if the user is logged or not
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
@@ -59,7 +52,7 @@ export default function Home() {
       }
     });
 
-  }, [])
+  }, [router])
 
 
   const userSignOut = () =>{

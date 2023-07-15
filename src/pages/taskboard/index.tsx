@@ -22,12 +22,6 @@ const db = getFirestore(app);
 
   const [dataResult,setData] = useState('data')
 
-  useEffect(()=>{
-    const unsub = onSnapshot(doc(db, "TaskBoards", "NBKt3TVqdRKbVtz8ycvD"), (doc) => {
-      console.log("Current data: ", doc.data());
-      setData(doc.data())
-    });
-  },[])
     
 
   return (
