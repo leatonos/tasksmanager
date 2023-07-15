@@ -1,0 +1,64 @@
+/* CSS Reset */
+
+body,html{
+    margin: 0;
+}
+
+/* Fonts */
+
+@font-face {
+    font-family: titles;
+    src: url(./fonts/Poppins-Bold.ttf);
+}
+
+@font-face {
+    font-family: subTitles;
+    src: url(./fonts/Poppins-SemiBold.ttf);
+}
+
+@font-face {
+    font-family: regularText;
+    src: url(./fonts/Poppins-Regular.ttf);
+}
+
+@font-face {
+    font-family: buttons;
+    src: url(./fonts/Poppins-Medium.ttf);
+}
+
+h1{
+    font-family: titles;
+}
+
+h2,h3,h4{
+    font-family: subTitles;
+}
+
+p,label,input{
+    font-family: regularText;
+}
+
+button,li{
+    font-family: buttons;
+}
+
+
+/* Color Variables */
+:root {
+    --primary: #0077b6;
+    --secondary: #00b4d8;
+    --optional: #fb8500;
+    --white: #ffffff;
+  }
+  
+
+/* Fields */
+input{
+    border: 0;
+    padding: 5px;
+    border-radius: 3px;
+}
+input:focus{
+    border: 0;
+    outline: none;
+}

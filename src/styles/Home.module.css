@@ -1,0 +1,80 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.homeContainer {
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+.formContainer{
+  background-color: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.accountForm{
+  width: 100%;
+}
+
+.formFieldContainer{
+  width: 60%;
+  margin: 10px 0px;
+}
+
+.buttonsContainer{
+  margin: 10px 0px;
+}
+
+.signUpBtn{
+  cursor: pointer;
+  background-color: var(--secondary);
+  color: black;
+  margin: 5px 0px;
+  width: 100%;
+  border: none;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.loginBtn{
+  cursor: pointer;
+  background-color: white;
+  padding: 4px;
+  margin: 5px 0px;
+  width: 100%;
+  border: none;
+  border-radius: 3px;
+}
+
+.googleLogin{
+  cursor: pointer;
+  background-color: var(--optional);
+  color: white;
+  padding: 4px;
+  margin: 5px 0px;
+  width: 100%;
+  border: none;
+  border-radius: 3px;
+}
+
+
+.loginBtn:focus,.signUpBtn:focus{
+   outline: none;
+}
+
+.homeTitle{
+  text-align: center;
+}
