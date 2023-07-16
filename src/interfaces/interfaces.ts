@@ -2,10 +2,11 @@ export interface User{
     userName:string;
     userId:string;
     userEmail:string;
-    taskBoards:TaskBoard[]
+    taskBoards:string[]
 }
 
 export interface TaskBoard{
+    taskboardId:string;
     boardName:string;
     taskCollections:TaskCollection[];
     boardMembers: User[]

@@ -20,9 +20,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 50%;
-  padding: 15px;
-  border-radius: 10px;
+  width: 40%;
+  padding: 10px calc(5% + 5px) 10px 5%;
+  border-radius: 7px;
 }
 
 .accountForm{
@@ -30,11 +30,12 @@
 }
 
 .formFieldContainer{
-  width: 60%;
-  margin: 10px 0px;
+  width: 100%;
+  margin: 10px;
 }
 
 .buttonsContainer{
+  width: 50%;
   margin: 10px 0px;
 }
 
@@ -70,11 +71,49 @@
   border-radius: 3px;
 }
 
+.messageLog{
+  text-align: center;
+  font-size: 12px;
+  padding: 0;
+  margin: 0 0 10px 0px
+}
 
 .loginBtn:focus,.signUpBtn:focus{
    outline: none;
 }
 
 .homeTitle{
+  color: white;
   text-align: center;
+}
+
+.taskBoardCardsContainer{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.taskboardCard{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: calc(25% - 20px);
+  height: 30vh;
+  margin: 10px;
+  color: white;
+  text-align: center;
+  background-color: var(--primary);
+  transition: .5s;
+  cursor: pointer;
+}
+
+.taskboardCard:hover{
+  transform: scale(.95);
+}
+
+.addTaskBoardIcon{
+  width: 50%;
+  height: 30%;
 }
