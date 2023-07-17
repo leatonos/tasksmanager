@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react';
 //Images Imports
 import Image from 'next/image';
 import whiteAddIcon from '../../public/add-icon-white.svg'
+import deleteIcon from '../../public/delete-icon-white.svg'
+
 
 //Types Imports
 import { Task, TaskBoard, TaskCollection } from '@/interfaces/interfaces';
@@ -78,6 +80,26 @@ const createNewTaskCard = async(boardId:string,position:number)=>{
   }
 }
 
+const deleteCollection =async (boardId:string,position:number) => {
+  const sfDocRef = doc(db, "TaskBoards", boardId);
+  try {
+    await runTransaction(db, async (transaction) => {
+      const sfDoc = await transaction.get(sfDocRef);
+      if (!sfDoc.exists()) {
+        throw "Document does not exist!";
+      }
+      const taskBoardData = sfDoc.data()
+      let taskCollectionsList = [...taskBoardData.taskCollections]
+      taskCollectionsList.splice(position,1)
+
+      transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
+    });
+    console.log("Transaction successfully committed!");
+  } catch (e) {
+    console.log("Transaction failed: ", e);
+  }
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -85,6 +107,7 @@ const db = getFirestore(app);
   return (
     <>
       <div className={styles.taskCollectionContainer}>
+      <Image onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
         <h3 onBlur={saveCollectionTitleChange} className={styles.editableText} id={`collectionTitle-${props.index}`} contentEditable="true">{props.collectionTitle}</h3>
         <div onClick={()=>createNewTaskCard(taskBoardId,collectionPosition)} className={styles.taskCreatorButton}>
           <Image className={styles.iconCreateTaskCard} src={whiteAddIcon} alt={'Click to add a new taskCard'}/>

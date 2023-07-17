@@ -206,3 +206,25 @@
   padding: 10px 0px;
 }
 
+.deleteCardBtn{
+  cursor: pointer;
+  position: sticky;
+  width: 15px;
+  height: 15px;
+  top: 0px;
+  left: calc(100% - 35px);
+  background-color: var(--secondary);
+  padding: 5px;
+}
+.deleteCollectionBtn{
+  cursor: pointer;
+  position:sticky;
+  z-index: 999;
+  width: 15px;
+  height: 15px;
+  top: 0px;
+  left: calc(90%);
+  background-color: var(--primary);
+  padding: 5px;
+}
+

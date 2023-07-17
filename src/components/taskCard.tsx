@@ -15,6 +15,7 @@ import { runTransaction } from 'firebase/firestore';
 //Image imports
 import Image from 'next/image'
 import addImage from '../../public/add-icon-white.svg'
+import deleteIcon from '../../public/delete-icon-white.svg'
 
 //Redux imports
 import { useAppDispatch } from '@/redux/hooks';
@@ -39,9 +40,15 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     // Initialize Cloud Firestore and get a reference to the service
     const db = getFirestore(app);
 
-    function convertDateToString(newDate:Date){
+    
 
-        
+
+    const collectionIndex = taskCardInfo.collectionIndex as number
+    const cardIndex = taskCardInfo.index as number
+    const currentDate = taskCardInfo.taskDueDate.toDate()
+
+
+    function convertDateToString(newDate:Date){
         const year = newDate.getFullYear()
         const monthNum = newDate.getMonth().toString()
         const dayNum = newDate.getDate().toString()
@@ -59,11 +66,6 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         //2018-06-12T19:30 
         return `${year}-${monthStr}-${dayStr}T${hours}:${minutes}`
     }
-
-
-    const collectionIndex = taskCardInfo.collectionIndex as number
-    const cardIndex = taskCardInfo.index as number
-    const currentDate = taskCardInfo.taskDueDate.toDate()
 
     const saveCardTitleChange = async (newTitle: string) => {
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
@@ -129,6 +131,27 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
+    const deleteTaskCard = async () => {
+        const sfDocRef = doc(db, "TaskBoards", taskBoardId);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+            const sfDoc = await transaction.get(sfDocRef);
+            if (!sfDoc.exists()) {
+                throw "Document does not exist!";
+            }
+            const taskBoardData = sfDoc.data() as TaskBoard
+            let taskCollectionsList = [...taskBoardData.taskCollections]
+            taskCollectionsList[collectionIndex].tasks.splice(cardIndex,1)
+
+            transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
+            });
+            console.log("Transaction successfully committed!");
+        } catch (e) {
+            console.log("Transaction failed: ", e);
+        }
+    }
+
     /*
     
     <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
@@ -141,9 +164,9 @@ export default function TaskCardComponent(taskCardInfo:Task) {
   return (
   
       <div className={styles.taskCard}>
+        <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
         <h3 contentEditable onBlur={(e) => saveCardTitleChange(e.target.innerText)} className={styles.editableText}>{taskCardInfo.taskName}</h3>
         <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>
-        
       </div>
   
   )
