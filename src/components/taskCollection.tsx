@@ -5,7 +5,7 @@ import styles from '@/styles/Home.module.css'
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { firebaseConfig } from '@/firebase-config';
-import { getDoc, getFirestore, runTransaction } from "firebase/firestore";
+import { Timestamp, getDoc, getFirestore, runTransaction } from "firebase/firestore";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 
@@ -66,7 +66,7 @@ const createNewTaskCard = async(boardId:string,position:number)=>{
       const newTask:Task = {
         taskName: 'New Task',
         taskDescription: 'Task Description',
-        taskDueDate: new Date()
+        taskDueDate: Timestamp.fromDate(new Date)
       }
       taskCollectionsList[position].tasks.push(newTask)
 
