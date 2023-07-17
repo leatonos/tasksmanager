@@ -40,7 +40,7 @@ export default function Dashboard() {
   useEffect(() => {
     
     //Here we check if the user is logged in or not
-    const auth = getAuth();
+    const auth = getAuth(app);
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties

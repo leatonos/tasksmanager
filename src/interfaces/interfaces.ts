@@ -18,16 +18,18 @@ export interface User{
 export interface TaskBoard{
     boardName:string;
     taskCollections:TaskCollection[];
-    boardMembers: User[]
+    boardMembers: string[]
 }
 
 export interface TaskCollection{
+    index?: number;
     collectionTitle:string;
     tasks:Task[];
 }
 
 export interface Task{
+    index?: number;
     taskName:string;
     taskDescription:string;
-    taskDueDate:Date
+    taskDueDate:Date | undefined
 }

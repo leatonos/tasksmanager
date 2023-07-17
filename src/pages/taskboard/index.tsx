@@ -9,11 +9,14 @@ import { getDoc, getFirestore } from "firebase/firestore";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import { firebaseConfig } from '@/firebase-config';
+import { useRouter } from 'next/router';
 
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+export default function TaskboardIndex() {
+
+  const router = useRouter()
 
 
 // Initialize Firebase
@@ -22,7 +25,9 @@ const db = getFirestore(app);
 
   const [dataResult,setData] = useState('data')
 
-    
+  useEffect(()=>{
+    router.push('/dashboard')
+  })
 
   return (
     <>
@@ -33,7 +38,7 @@ const db = getFirestore(app);
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <h1>Create account</h1>
+        <h1>TaskboardId Invalid</h1>
         <p>{JSON.stringify(dataResult)}</p>
       </main>
     </>

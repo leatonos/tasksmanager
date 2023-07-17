@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import loginSlice from './loginSlice'
 import userSlice from './userSlice'
+import taskSlice from './taskSlice'
 
 export const store = configureStore({
   reducer: {
     login:loginSlice,
-    user:userSlice
+    user:userSlice,
+    task:taskSlice
   },
 })
 
