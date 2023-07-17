@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 
 
 export interface UserTaskBoard {
@@ -32,5 +33,5 @@ export interface Task{
     index?: number;
     taskName:string;
     taskDescription:string;
-    taskDueDate:Date | undefined
+    taskDueDate:Timestamp
 }

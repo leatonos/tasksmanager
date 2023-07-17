@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 
 import { initializeApp } from "firebase/app";
-import { getDoc, getFirestore,setDoc,doc, onSnapshot, collection, addDoc } from "firebase/firestore";
+import { getDoc, getFirestore,setDoc,doc, onSnapshot, collection, addDoc, Timestamp } from "firebase/firestore";
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { firebaseConfig } from '@/firebase-config';
@@ -39,20 +39,21 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     // Initialize Cloud Firestore and get a reference to the service
     const db = getFirestore(app);
 
-    function convertDateToString(date:Date){
+    function convertDateToString(newDate:Date){
+
         
-        const originalDuedate = date
-        const year = originalDuedate.getFullYear()
-        const monthNum = originalDuedate.getMonth().toString()
-        const dayNum = originalDuedate.getDate().toString()
-        let hours = originalDuedate.getHours().toString()
-        let minutes = originalDuedate.getMinutes().toString()
+        const year = newDate.getFullYear()
+        const monthNum = newDate.getMonth().toString()
+        const dayNum = newDate.getDate().toString()
+        let hours = newDate.getHours().toString()
+        let minutes = newDate.getMinutes().toString()
         if(hours.length<2){hours='0'+hours}
         let monthStr=monthNum
         let dayStr=dayNum
         if(monthNum.length<2){monthStr = '0'+monthStr}
         if(dayNum.length<2){dayStr = '0'+dayNum} 
 
+        console.log(`${year}-${monthStr}-${dayStr}T${hours}:${minutes}`)
 
         //example
         //2018-06-12T19:30 
@@ -62,6 +63,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
     const collectionIndex = taskCardInfo.collectionIndex as number
     const cardIndex = taskCardInfo.index as number
+    const currentDate = taskCardInfo.taskDueDate.toDate()
 
     const saveCardTitleChange = async (newTitle: string) => {
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
@@ -115,9 +117,10 @@ export default function TaskCardComponent(taskCardInfo:Task) {
                 throw "Document does not exist!";
             }
             const taskBoardData = sfDoc.data() as TaskBoard
+            const newDateDue = new Date(date)
+            console.log(date)
             let taskCollectionsList = [...taskBoardData.taskCollections]
-            taskCollectionsList[collectionIndex].tasks[cardIndex].taskDueDate = new Date(date)
-
+            taskCollectionsList[collectionIndex].tasks[cardIndex].taskDueDate = Timestamp.fromDate(newDateDue)
             transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
             });
             console.log("Transaction successfully committed!");
@@ -126,13 +129,21 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
+    /*
+    
+    <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
+        <p>{convertDateToString(currentDate)}</p>
+        <input onBlur={(e) => saveNewDate(e.target.value)} type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={convertDateToString(currentDate)}/>
+
+    */
+    
+
   return (
   
       <div className={styles.taskCard}>
         <h3 contentEditable onBlur={(e) => saveCardTitleChange(e.target.innerText)} className={styles.editableText}>{taskCardInfo.taskName}</h3>
         <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>
-        <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
-        <input onBlur={(e) => saveNewDate(e.target.value)} type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={convertDateToString(taskCardInfo.taskDueDate as Date)}/>
+        
       </div>
   
   )
