@@ -28,6 +28,7 @@ export interface TaskCollection{
 }
 
 export interface Task{
+    collectionIndex?:number;
     index?: number;
     taskName:string;
     taskDescription:string;

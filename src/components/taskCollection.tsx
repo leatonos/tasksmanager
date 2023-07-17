@@ -91,7 +91,7 @@ const db = getFirestore(app);
           <h5>Add task card</h5>
         </div>
         {props.tasks.map((task,index)=>{
-          return <TaskCardComponent key={index} index={index} taskName={task.taskName} taskDescription={task.taskDescription} taskDueDate={new Date()}/>
+          return <TaskCardComponent key={index} collectionIndex={collectionPosition} index={index} taskName={task.taskName} taskDescription={task.taskDescription} taskDueDate={new Date()}/>
           })
         }
       </div>

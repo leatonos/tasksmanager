@@ -34,7 +34,7 @@ h2,h3,h4,h5{
     font-family: subTitles;
 }
 
-p,label,input{
+p,label,input,textarea{
     font-family: regularText;
 }
 
@@ -77,3 +77,16 @@ input:focus{
     height: 100vh;
     background-color: rgba(255, 255, 255, 0.85);
 }
+
+
+textarea {
+    width: 95%;
+    height: 90px;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 0px solid;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 12px;
+    resize: none;
+  }
