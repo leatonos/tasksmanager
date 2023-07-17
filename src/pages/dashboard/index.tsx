@@ -131,16 +131,17 @@ export default function Dashboard() {
           <button className={styles.signUpBtn} onClick={userSignOut} type="button">Sign Out</button>
         </div>
         <div className={styles.taskBoardCardsContainer}>
-          <TaskBoardCardComponent taskBoardId={''} boardName={''} taskCollections={[]} boardMembers={[]}/>
+          <TaskBoardCardComponent taskBoardId={''} boardName={''} boardMembers={[]} onwerId={''} onwerName={''}/>
           {userTaskBoards.map((taskBoard:UserTaskBoard,index)=>{
             return (
             <TaskBoardCardComponent
-              key={index}
-              taskBoardId={taskBoard.taskBoardId} 
-              boardName={taskBoard.boardName} 
-              taskCollections={taskBoard.taskCollections} 
-              boardMembers={taskBoard.boardMembers}
-            />
+                key={index}
+                taskBoardId={taskBoard.taskBoardId}
+                boardName={taskBoard.boardName}
+                boardMembers={taskBoard.boardMembers} 
+                onwerId={taskBoard.onwerId} 
+                onwerName={taskBoard.onwerName}            
+                />
             )
           })}
         </div>

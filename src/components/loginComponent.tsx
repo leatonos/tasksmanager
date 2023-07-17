@@ -78,7 +78,7 @@ export default function LoginComponent() {
             <h1 className={styles.homeTitle}>Welcome to Task</h1>
             <div className={styles.formFieldContainer}>
               <label htmlFor="email" className="form-label">Email address</label>
-              <input type="email" required className={styles.accountForm} id="email" p laceholder="name@example.com"/>
+              <input type="email" required className={styles.accountForm} id="email" placeholder="name@example.com"/>
             </div>
             <div className={styles.formFieldContainer}>
               <label htmlFor="password" className="form-label">Password</label>
