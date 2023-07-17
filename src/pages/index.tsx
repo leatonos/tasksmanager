@@ -39,9 +39,10 @@ export default function Home() {
         // https://firebase.google.com/docs/reference/js/auth.user
         const uid = user.uid;
         console.log(user)
+        // User will be redirected to their Dashboard that contains all their Taskboards
         router.push('/dashboard')
       } else {
-        // User is signed out
+        // User is signed out, nothing happens in this situation
       }
     });
 

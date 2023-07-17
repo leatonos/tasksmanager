@@ -9,10 +9,15 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { firebaseConfig } from '@/firebase-config';
-import { User } from '@/interfaces/interfaces';
+import { TaskBoard, User, UserTaskBoard } from '@/interfaces/interfaces';
 import TaskBoardCardComponent from '@/components/taskboardCard';
 
 const inter = Inter({ subsets: ['latin'] })
+
+//Redux imports
+import { useAppDispatch } from '@/redux/hooks';
+import { useAppSelector } from '@/redux/hooks';
+import { setUserName,setUserId,setUserEmail, setUserTaskBoards } from '@/redux/userSlice';
 
 export default function Dashboard() {
   
@@ -23,10 +28,13 @@ export default function Dashboard() {
 
   const [userRegistred, setUserRegistred] = useState<boolean>(true)
   const [message, setMessage] = useState<string>('')
-  const [userId,setUserId] = useState<string>('')
-  const [userEmail,setUserEmail] = useState<string | null>('')
-  const [userInfo, setUserInfo] = useState<User | null>(null)
 
+  //Redux Selectors
+  const userId = useAppSelector((state) => state.user.userId)
+  const userName = useAppSelector((state) => state.user.userName)
+  const userEmail = useAppSelector((state) => state.user.userEmail)
+  const userTaskBoards = useAppSelector((state) => state.user.userTaskBoards)
+  const dispatch = useAppDispatch()
 
 
   useEffect(() => {
@@ -37,8 +45,8 @@ export default function Dashboard() {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/auth.user
-        setUserId(user.uid)
-        setUserEmail(user.email)
+        dispatch(setUserId(user.uid))
+        dispatch(setUserEmail(user.email as string))
         checkUser(user.uid)
         // ...
       } else {
@@ -59,10 +67,13 @@ export default function Dashboard() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      //It means that problably is the user's first login
+      //It means that this user exists in the database, so we save the information into the Redux Store
       console.log("Document data:", docSnap.data());
-      const databaseResult = (docSnap.data() as User)
-      setUserInfo(databaseResult)
+      const databaseResult = docSnap.data() as User
+      dispatch(setUserEmail(databaseResult.userEmail))
+      dispatch(setUserId(databaseResult.userId))
+      dispatch(setUserName(databaseResult.userName))
+      dispatch(setUserTaskBoards(databaseResult.taskBoards))
       setUserRegistred(true)
     } else {
       /*
@@ -93,7 +104,7 @@ export default function Dashboard() {
     e.preventDefault()
     const newUserName = (document.getElementById('newUserName') as HTMLInputElement).value 
 
-    // Add a new document in collection "cities"
+    // Add a new user in collection "Users"
     await setDoc(doc(db, "Users", userId), {
       userName: newUserName,
       userId:userId,
@@ -116,8 +127,22 @@ export default function Dashboard() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <h1>Dashboard</h1>
+        <div className={styles.buttonsContainer}>
+          <button className={styles.signUpBtn} onClick={userSignOut} type="button">Sign Out</button>
+        </div>
         <div className={styles.taskBoardCardsContainer}>
-          <TaskBoardCardComponent taskboardId={''} boardName={''} taskCollections={[]} boardMembers={[]}/>
+          <TaskBoardCardComponent taskBoardId={''} boardName={''} taskCollections={[]} boardMembers={[]}/>
+          {userTaskBoards.map((taskBoard:UserTaskBoard,index)=>{
+            return (
+            <TaskBoardCardComponent
+              key={index}
+              taskBoardId={taskBoard.taskBoardId} 
+              boardName={taskBoard.boardName} 
+              taskCollections={taskBoard.taskCollections} 
+              boardMembers={taskBoard.boardMembers}
+            />
+            )
+          })}
         </div>
       </main>
     </>
@@ -142,7 +167,6 @@ export default function Dashboard() {
             </div>
             <div className={styles.buttonsContainer}>
               <p className={styles.messageLog}>{message}</p>
-              <p className={styles.messageLog}>{userId}</p>
               <button className={styles.loginBtn} type="submit">Register</button>
               <button className={styles.signUpBtn} onClick={userSignOut} type="button">Sign Out</button>
             </div>
