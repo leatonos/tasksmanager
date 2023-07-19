@@ -23,8 +23,13 @@ import { useAppSelector } from '@/redux/hooks';
 import { setUserName,setUserId,setUserEmail,setUserTaskBoards } from '@/redux/userSlice';
 
 export default function TaskCardComponent(taskCardInfo:Task) {
-
     
+    //Card State
+    const [beenDragged,setDraggedState] = useState<boolean>(false)
+    const [cardCSSPosition,setCardCSSPosition] = useState<any>('static')
+    const [cardWidth,setCardWidth] = useState('100%')
+    const [carZindex, setZindex] = useState(0)
+
     //Redux Selectors
     const userId = useAppSelector((state) => state.user.userId)
     const userName = useAppSelector((state) => state.user.userName)
@@ -40,7 +45,8 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     // Initialize Cloud Firestore and get a reference to the service
     const db = getFirestore(app);
 
-    
+    const mousePositionX = useAppSelector((state)=>state.mouse.mouseX)
+    const mousePositionY = useAppSelector((state)=>state.mouse.mouseY)
 
 
     const collectionIndex = taskCardInfo.collectionIndex as number
@@ -152,18 +158,40 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
+
+
+    const startDraging = ()=>{
+        setCardCSSPosition('absolute')
+        setZindex(9999)
+        setCardWidth('calc(20% - 20px)')
+    }
+
+    const stopDraging = () =>{
+        setCardCSSPosition('static')
+        setZindex(0)
+        setCardWidth('100%')
+    }
+
     /*
     
-    <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
+        <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
         <p>{convertDateToString(currentDate)}</p>
         <input onBlur={(e) => saveNewDate(e.target.value)} type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={convertDateToString(currentDate)}/>
 
     */
-    
 
-  return (
-  
-      <div className={styles.taskCard}>
+
+    const cardStyle:React.CSSProperties = {
+        position:cardCSSPosition,
+        top:mousePositionY-20,
+        left:mousePositionX-20,
+        width:cardWidth,
+        zIndex:carZindex
+    }
+
+  return (<div onMouseDown={startDraging} onMouseUp={stopDraging} 
+            className={styles.taskCard}
+            style={cardStyle}>
         <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
         <h3 contentEditable onBlur={(e) => saveCardTitleChange(e.target.innerText)} className={styles.editableText}>{taskCardInfo.taskName}</h3>
         <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>

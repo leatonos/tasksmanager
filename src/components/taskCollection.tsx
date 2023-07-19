@@ -107,7 +107,7 @@ const db = getFirestore(app);
   return (
     <>
       <div className={styles.taskCollectionContainer}>
-      <Image onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
+        <Image onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
         <h3 onBlur={saveCollectionTitleChange} className={styles.editableText} id={`collectionTitle-${props.index}`} contentEditable="true">{props.collectionTitle}</h3>
         <div onClick={()=>createNewTaskCard(taskBoardId,collectionPosition)} className={styles.taskCreatorButton}>
           <Image className={styles.iconCreateTaskCard} src={whiteAddIcon} alt={'Click to add a new taskCard'}/>

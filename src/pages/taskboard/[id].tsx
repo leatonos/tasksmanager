@@ -21,6 +21,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAppDispatch } from '@/redux/hooks';
 import { useAppSelector } from '@/redux/hooks';
 import { setUserName,setUserId,setUserEmail, setUserTaskBoards } from '@/redux/userSlice';
+import {setMouseXLocation,setMouseYLocation} from '@/redux/mouseSlice'
 
 //Types imports
 import { TaskBoard, TaskCollection, User } from '@/interfaces/interfaces';
@@ -51,8 +52,9 @@ export default function Taskboard() {
   const userTaskBoards = useAppSelector((state) => state.user.userTaskBoards)
   //Tasks
   const taskWindowState = useAppSelector((state)=>state.task.windowState)
-
-  
+  //Mouse 
+  const mousePositionX = useAppSelector((state)=>state.mouse.mouseX)
+  const mousePositionY = useAppSelector((state)=>state.mouse.mouseY)
 
   const dispatch = useAppDispatch()
 
@@ -117,6 +119,12 @@ export default function Taskboard() {
 
   }, [taskBoardInfo,userId])
 
+  useEffect(()=>{
+    document.addEventListener('mousemove',(e)=>{
+      dispatch(setMouseXLocation(e.pageX))
+      dispatch(setMouseYLocation(e.pageY))
+    })
+  },[])
 
   const getUserInfo = async(id:string) =>{
     const docRef = doc(db, "Users", id);
@@ -199,6 +207,7 @@ export default function Taskboard() {
       <TaskCollectionCreator/>
       <main className={styles.main}>
         <h1>{taskBoardInfo?.boardName}</h1>
+        <h3>X:{mousePositionX} Y:{mousePositionY}</h3>
         <div className={styles.taskCollectionsContainer}>
           <div onClick={()=>dispatch(openTaskCollectionCreator())} className={styles.taskCollectionContainerCreator}>
             <h3>Create Task Collection</h3>
