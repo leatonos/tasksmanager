@@ -184,6 +184,8 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
         //If the user does not drag the card away from the collection nothing happens
         if(collectionIndex == selectedCollection){
+            setFixedCardOpacity(1)
+            
             return
         }
 
