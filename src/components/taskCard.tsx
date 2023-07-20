@@ -252,7 +252,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     </div>
      <div className={styles.taskCard} style={cardStyle}>
         <div className={styles.cardHeader}>
-            <Image draggable={false} onMouseDown={(e)=>startDraging(e)} className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
+            <Image draggable={false} onMouseDown={startDraging} className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
             <input type='text' style={{margin:'10px 0px'}} onBlur={(e) => saveCardTitleChange(e.target.value)} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
             <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
         </div>

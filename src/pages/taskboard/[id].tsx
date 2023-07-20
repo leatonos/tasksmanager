@@ -231,9 +231,6 @@ export default function Taskboard() {
       <TaskCollectionCreator/>
       <main className={styles.main}>
         <h1>{taskBoardInfo?.boardName}</h1>
-        <h5>{JSON.stringify(collectionsPositions)}</h5>
-        <h5>currentPos: {mousePositionX}</h5>
-        <h5>currentPosition: {selectedCollection}</h5>
         <div onMouseMove={(e) => getMousePosition(e)} id='taskCollections' className={styles.taskCollectionsContainer}>
           <div onClick={()=>dispatch(openTaskCollectionCreator())} className={styles.taskCollectionContainerCreator}>
             <h3>Create Task Collection</h3>
