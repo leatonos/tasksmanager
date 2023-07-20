@@ -31,8 +31,8 @@ export default function TaskCollectionComponent(props:TaskCollection) {
 const taskBoardId = useAppSelector((state) => state.task.taskboardId)
 const collectionPosition = props.index as number
 
-const saveCollectionTitleChange = async()=>{
-  const newCollectionTitle = document.getElementById(`collectionTitle-${props.index}`)?.innerText as string
+const saveCollectionTitleChange = async(newCollectionTitle:string)=>{
+  
   const sfDocRef = doc(db, "TaskBoards", taskBoardId);
 
   try {
@@ -106,15 +106,15 @@ const db = getFirestore(app);
 
   return (
     <>
-      <div className={styles.taskCollectionContainer}>
+      <div onDragEnter={()=>console.log('Collection number: '+collectionPosition)} className={styles.taskCollectionContainer}>
         <Image onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
-        <h3 onBlur={saveCollectionTitleChange} className={styles.editableText} id={`collectionTitle-${props.index}`} contentEditable="true">{props.collectionTitle}</h3>
+        <input defaultValue={props.collectionTitle} onBlur={(e)=>saveCollectionTitleChange(e.target.value)} className={styles.editableCollectionName} id={`collectionTitle-${props.index}`}></input>
         <div onClick={()=>createNewTaskCard(taskBoardId,collectionPosition)} className={styles.taskCreatorButton}>
           <Image className={styles.iconCreateTaskCard} src={whiteAddIcon} alt={'Click to add a new taskCard'}/>
           <h5>Add task card</h5>
         </div>
         {props.tasks.map((task,index)=>{
-          return <TaskCardComponent key={index} collectionIndex={collectionPosition} index={index} taskName={task.taskName} taskDescription={task.taskDescription} taskDueDate={task.taskDueDate}/>
+          return <TaskCardComponent key={index+task.taskName} collectionIndex={collectionPosition} index={index} taskName={task.taskName} taskDescription={task.taskDescription} taskDueDate={task.taskDueDate}/>
           })
         }
       </div>

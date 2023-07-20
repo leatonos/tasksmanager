@@ -72,7 +72,7 @@ input:focus{
     justify-content: center;
     position: fixed;
     top: 0;
-    z-index: 999;
+    z-index: 99999;
     width: 100vw;
     height: 100vh;
     background-color: rgba(255, 255, 255, 0.85);

@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image'
 import blackAddIcon from '../../../public/add-icon-black.svg'
 import whiteAddIcon from '../../../public/add-icon-white.svg'
+import moveButton from '../../../public/move-white.svg'
 
 //Firebase Imports
 import { initializeApp } from "firebase/app";
@@ -21,7 +22,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAppDispatch } from '@/redux/hooks';
 import { useAppSelector } from '@/redux/hooks';
 import { setUserName,setUserId,setUserEmail, setUserTaskBoards } from '@/redux/userSlice';
-import {setMouseXLocation,setMouseYLocation} from '@/redux/mouseSlice'
+import {setMouseXLocation,setMouseYLocation,setCardMousePosition,setCollectionMousePosition} from '@/redux/mouseSlice'
 
 //Types imports
 import { TaskBoard, TaskCollection, User } from '@/interfaces/interfaces';
@@ -37,6 +38,7 @@ export default function Taskboard() {
 
   //Component States
   const [taskBoardInfo,setTaskBoardInfo] = useState<null|TaskBoard>(null)
+  const [collectionsPositions,setCollectionsPositions] = useState<number[]>([])
   const taskboardId = (router.query.id) as string
 
 
@@ -54,13 +56,14 @@ export default function Taskboard() {
   const taskWindowState = useAppSelector((state)=>state.task.windowState)
   //Mouse 
   const mousePositionX = useAppSelector((state)=>state.mouse.mouseX)
+  const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
   const mousePositionY = useAppSelector((state)=>state.mouse.mouseY)
+  const dragStatus = useAppSelector((state)=>state.mouse.draggingStatus)
 
   const dispatch = useAppDispatch()
 
   //Makes all the updates in realtime
   useEffect(()=>{
-
     //It can take sometime to the router been processed so, we wait until the value is valid
     if(!taskboardId){
       return
@@ -79,7 +82,7 @@ export default function Taskboard() {
       const databaseResult = doc.data() as TaskBoard
       setTaskBoardInfo(databaseResult)
     });
-  },[db,taskboardId])
+  },[router,dragStatus])
 
   //Gets user info
   useEffect(() => {
@@ -111,7 +114,7 @@ export default function Taskboard() {
     }
 
     if(taskBoardInfo.boardMembers.includes(userId)){
-      console.log('User authorized')
+      //console.log('User authorized')
     }else{
       console.log('User not a member')
       router.push('/dashboard')
@@ -119,12 +122,33 @@ export default function Taskboard() {
 
   }, [taskBoardInfo,userId])
 
-  useEffect(()=>{
-    document.addEventListener('mousemove',(e)=>{
-      dispatch(setMouseXLocation(e.pageX))
+  const getMousePosition = (e:any) =>{
+    const collectionElements = document.getElementsByClassName(styles.taskCollectionContainer) as HTMLCollectionOf<HTMLElement>
+      const collectionElementsArr = Array.from(collectionElements)
+      const arrayOfCollectionPositions = collectionElementsArr.map((element)=>{
+        return element.offsetLeft
+      })
+      setCollectionsPositions(arrayOfCollectionPositions)
+      const collections = document.getElementById('taskCollections') as HTMLElement
+      dispatch(setMouseXLocation(e.pageX + Math.floor(collections.scrollLeft)))
       dispatch(setMouseYLocation(e.pageY))
-    })
-  },[])
+      dispatch(setCollectionMousePosition(getSelectedTaskCollection()))
+
+  }
+  const getSelectedTaskCollection = ()=>{
+
+    let selected = 0
+
+    for (let i = 0; i < collectionsPositions.length; i++) {
+      if(mousePositionX >= collectionsPositions[i]){
+        selected = i
+      }
+      
+    }
+
+
+    return selected;
+  }
 
   const getUserInfo = async(id:string) =>{
     const docRef = doc(db, "Users", id);
@@ -132,7 +156,6 @@ export default function Taskboard() {
 
     if (docSnap.exists()) {
       //It means that this user exists in the database, so we save the information into the Redux Store
-      console.log("Document data:", docSnap.data());
       const databaseResult = docSnap.data() as User
       dispatch(setUserEmail(databaseResult.userEmail))
       dispatch(setUserId(databaseResult.userId))
@@ -145,6 +168,7 @@ export default function Taskboard() {
     }
   }
   
+  //Creates a new Task collection (a column)
   const createNewCollection = async(e:any) =>{
 
     e.preventDefault()
@@ -207,8 +231,10 @@ export default function Taskboard() {
       <TaskCollectionCreator/>
       <main className={styles.main}>
         <h1>{taskBoardInfo?.boardName}</h1>
-        <h3>X:{mousePositionX} Y:{mousePositionY}</h3>
-        <div className={styles.taskCollectionsContainer}>
+        <h5>{JSON.stringify(collectionsPositions)}</h5>
+        <h5>currentPos: {mousePositionX}</h5>
+        <h5>currentPosition: {selectedCollection}</h5>
+        <div onMouseMove={(e) => getMousePosition(e)} id='taskCollections' className={styles.taskCollectionsContainer}>
           <div onClick={()=>dispatch(openTaskCollectionCreator())} className={styles.taskCollectionContainerCreator}>
             <h3>Create Task Collection</h3>
             <Image className={styles.addCollectionIcon} src={blackAddIcon} alt={'Add Icon'}/>

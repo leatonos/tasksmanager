@@ -16,25 +16,34 @@ import { runTransaction } from 'firebase/firestore';
 import Image from 'next/image'
 import addImage from '../../public/add-icon-white.svg'
 import deleteIcon from '../../public/delete-icon-white.svg'
+import moveButton from '../../public/move-white.svg'
+
 
 //Redux imports
 import { useAppDispatch } from '@/redux/hooks';
 import { useAppSelector } from '@/redux/hooks';
 import { setUserName,setUserId,setUserEmail,setUserTaskBoards } from '@/redux/userSlice';
+import { setDraggingStatus } from '@/redux/mouseSlice';
+
 
 export default function TaskCardComponent(taskCardInfo:Task) {
     
-    //Card State
-    const [beenDragged,setDraggedState] = useState<boolean>(false)
-    const [cardCSSPosition,setCardCSSPosition] = useState<any>('static')
-    const [cardWidth,setCardWidth] = useState('100%')
-    const [carZindex, setZindex] = useState(0)
+    //CSS static card state
+    const [fixedCardOpacity,setFixedCardOpacity] = useState<number>(1)    
+
+    //FloatingCard
+    //Floatin CSS State
+    const [floatingCardDisplay,setFloatingCardDisplay] = useState('none')
+    const [floatingCardCSSPosition,setFloatingCardCSSPosition] = useState<any>('static')
+    const [floatingCardTransform,setFloatingCardTransform] = useState<any>('none')
+
 
     //Redux Selectors
     const userId = useAppSelector((state) => state.user.userId)
     const userName = useAppSelector((state) => state.user.userName)
     const userEmail = useAppSelector((state) => state.user.userEmail)
     const taskBoardId = useAppSelector((state) => state.task.taskboardId)
+    const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
     const dispatch = useAppDispatch()
 
     //Router
@@ -48,7 +57,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     const mousePositionX = useAppSelector((state)=>state.mouse.mouseX)
     const mousePositionY = useAppSelector((state)=>state.mouse.mouseY)
 
-
+    //Card Information
     const collectionIndex = taskCardInfo.collectionIndex as number
     const cardIndex = taskCardInfo.index as number
     const currentDate = taskCardInfo.taskDueDate.toDate()
@@ -161,15 +170,49 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
 
     const startDraging = ()=>{
-        setCardCSSPosition('absolute')
-        setZindex(9999)
-        setCardWidth('calc(20% - 20px)')
+        setDraggingStatus(true)
+        //Fixed Card CSS changes
+        setFixedCardOpacity(0.3)
+
+        //Floating Card CSS
+        setFloatingCardDisplay('block')
     }
 
-    const stopDraging = () =>{
-        setCardCSSPosition('static')
-        setZindex(0)
-        setCardWidth('100%')
+    const stopDraging = async() =>{
+
+        setFloatingCardDisplay('none')
+
+        //If the user does not drag the card away from the collection nothing happens
+        if(collectionIndex == selectedCollection){
+            return
+        }
+
+        //Transfer the card from one position to another
+        const sfDocRef = doc(db, "TaskBoards", taskBoardId);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+            const sfDoc = await transaction.get(sfDocRef);
+            if (!sfDoc.exists()) {
+                throw "Document does not exist!";
+            }
+            const taskBoardData = sfDoc.data() as TaskBoard
+            let taskCollectionsList = [...taskBoardData.taskCollections]
+            const cardToBeCopied = taskCollectionsList[collectionIndex].tasks[cardIndex]
+            taskCollectionsList[selectedCollection].tasks.push(cardToBeCopied)
+            taskCollectionsList[collectionIndex].tasks.splice(cardIndex,1)
+
+            transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
+            });
+            console.log("Transaction successfully committed!");
+        } catch (e) {
+            console.log("Transaction failed: ", e);
+        }
+        
+        setFixedCardOpacity(1)
+
+        setDraggingStatus(false)
+      
     }
 
     /*
@@ -182,20 +225,41 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
 
     const cardStyle:React.CSSProperties = {
-        position:cardCSSPosition,
-        top:mousePositionY-20,
-        left:mousePositionX-20,
-        width:cardWidth,
-        zIndex:carZindex
+        opacity:fixedCardOpacity
+       
     }
 
-  return (<div onMouseDown={startDraging} onMouseUp={stopDraging} 
-            className={styles.taskCard}
-            style={cardStyle}>
-        <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
-        <h3 contentEditable onBlur={(e) => saveCardTitleChange(e.target.innerText)} className={styles.editableText}>{taskCardInfo.taskName}</h3>
+    const floatingCardStyle:React.CSSProperties = {
+       
+        display:floatingCardDisplay,
+        position:"absolute",
+        top:mousePositionY -35,
+        left:mousePositionX -35,
+        width:'calc(20% - 5px)',
+        minWidth:'200px'
+
+    }
+
+  return (
+    <>
+    <div onMouseUp={stopDraging} className={styles.taskCard} style={floatingCardStyle}>
+        <div className={styles.cardHeader}>
+            <Image draggable={false}  className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
+            <input type='text' style={{margin:'10px 0px'}} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
+            <Image className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+        </div>
+        <textarea defaultValue={taskCardInfo.taskDescription}></textarea>
+    </div>
+     <div className={styles.taskCard} style={cardStyle}>
+        <div className={styles.cardHeader}>
+            <Image draggable={false} onMouseDown={(e)=>startDraging(e)} className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
+            <input type='text' style={{margin:'10px 0px'}} onBlur={(e) => saveCardTitleChange(e.target.value)} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
+            <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+        </div>
         <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>
-      </div>
+    </div>
+    </>
+   
   
   )
 }
