@@ -170,10 +170,9 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
 
     const startDraging = ()=>{
-        setDraggingStatus(true)
         //Fixed Card CSS changes
         setFixedCardOpacity(0.3)
-
+        
         //Floating Card CSS
         setFloatingCardDisplay('block')
     }
@@ -185,7 +184,6 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         //If the user does not drag the card away from the collection nothing happens
         if(collectionIndex == selectedCollection){
             setFixedCardOpacity(1)
-            
             return
         }
 
@@ -212,8 +210,6 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
         
         setFixedCardOpacity(1)
-
-        setDraggingStatus(false)
       
     }
 
