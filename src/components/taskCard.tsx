@@ -29,7 +29,8 @@ import { setDraggingStatus } from '@/redux/mouseSlice';
 export default function TaskCardComponent(taskCardInfo:Task) {
     
     //CSS static card state
-    const [fixedCardOpacity,setFixedCardOpacity] = useState<number>(1)    
+    const [fixedCardOpacity,setFixedCardOpacity] = useState<number>(1) 
+    const [selectable,setSelectable] = useState<any>('')   
 
     //FloatingCard
     //Floatin CSS State
@@ -44,6 +45,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     const userEmail = useAppSelector((state) => state.user.userEmail)
     const taskBoardId = useAppSelector((state) => state.task.taskboardId)
     const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
+    const selectedCardPosition = useAppSelector((state)=>state.mouse.mouseCardPosition)
     const dispatch = useAppDispatch()
 
     //Router
@@ -172,7 +174,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     const startDraging = ()=>{
         //Fixed Card CSS changes
         setFixedCardOpacity(0.3)
-        
+        setSelectable('none')
         //Floating Card CSS
         setFloatingCardDisplay('block')
     }
@@ -182,12 +184,13 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         setFloatingCardDisplay('none')
 
         //If the user does not drag the card away from the collection nothing happens
-        if(collectionIndex == selectedCollection){
+        if(collectionIndex == selectedCollection && cardIndex == selectedCardPosition){
             setFixedCardOpacity(1)
+            setSelectable('')
             return
         }
 
-        //Transfer the card from one position to another
+        //Transfer the card from one Collection to another and from 
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
 
         try {
@@ -197,10 +200,15 @@ export default function TaskCardComponent(taskCardInfo:Task) {
                 throw "Document does not exist!";
             }
             const taskBoardData = sfDoc.data() as TaskBoard
+
+            //Makes a copy of the current Taskboard so we can make changes
             let taskCollectionsList = [...taskBoardData.taskCollections]
+            
+            //This represents the card you are dragging
             const cardToBeCopied = taskCollectionsList[collectionIndex].tasks[cardIndex]
-            taskCollectionsList[selectedCollection].tasks.push(cardToBeCopied)
+            
             taskCollectionsList[collectionIndex].tasks.splice(cardIndex,1)
+            taskCollectionsList[selectedCollection].tasks.splice(selectedCardPosition,0,cardToBeCopied)
 
             transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
             });
@@ -210,6 +218,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
         
         setFixedCardOpacity(1)
+        
       
     }
 
@@ -223,8 +232,8 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
 
     const cardStyle:React.CSSProperties = {
-        opacity:fixedCardOpacity
-       
+        opacity:fixedCardOpacity,
+        userSelect:selectable
     }
 
     const floatingCardStyle:React.CSSProperties = {
@@ -232,15 +241,16 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         display:floatingCardDisplay,
         position:"absolute",
         top:mousePositionY -35,
-        left:mousePositionX -35,
+        left:mousePositionX -30,
         width:'calc(20% - 5px)',
-        minWidth:'200px'
+        minWidth:'200px',
+        zIndex:99999
 
     }
 
   return (
     <>
-    <div onMouseUp={stopDraging} className={styles.taskCard} style={floatingCardStyle}>
+    <div onMouseUp={stopDraging} className={styles.taskCardFloating} style={floatingCardStyle}>
         <div className={styles.cardHeader}>
             <Image draggable={false}  className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
             <input type='text' style={{margin:'10px 0px'}} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>

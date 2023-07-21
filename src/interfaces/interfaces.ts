@@ -35,3 +35,9 @@ export interface Task{
     taskDescription:string;
     taskDueDate:Timestamp
 }
+
+
+export interface CardCoordinates{
+    cardTop:number;
+    cardBottom:number;
+}

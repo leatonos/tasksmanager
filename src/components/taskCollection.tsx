@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import whiteAddIcon from '../../public/add-icon-white.svg'
 import deleteIcon from '../../public/delete-icon-white.svg'
+import dragIcon from '../../public/move-white.svg'
 
 
 //Types Imports
@@ -100,14 +101,21 @@ const deleteCollection =async (boardId:string,position:number) => {
   }
 }
 
+const moveCollection =async (boardId:string,position:number) => {
+  
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
   return (
     <>
-      <div onDragEnter={()=>console.log('Collection number: '+collectionPosition)} className={styles.taskCollectionContainer}>
-        <Image onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
+      <div onDragEnter={()=>console.log('Collection number: '+collectionPosition)} className={styles.taskCollectionContainer} id={`taskCollection-n${collectionPosition}`}>
+        <div className={styles.taskCollectionHeader}>
+          <Image draggable='false' className={styles.dragCollectionBtn} src={dragIcon} alt={'Move this colletion'} title='Move this collection'/>
+          <Image draggable='false' onClick={()=>deleteCollection(taskBoardId,collectionPosition)} className={styles.deleteCollectionBtn} src={deleteIcon} alt={'Delete this colletion'} title='Delete this collection'/>
+        </div>
         <input defaultValue={props.collectionTitle} onBlur={(e)=>saveCollectionTitleChange(e.target.value)} className={styles.editableCollectionName} id={`collectionTitle-${props.index}`}></input>
         <div onClick={()=>createNewTaskCard(taskBoardId,collectionPosition)} className={styles.taskCreatorButton}>
           <Image className={styles.iconCreateTaskCard} src={whiteAddIcon} alt={'Click to add a new taskCard'}/>

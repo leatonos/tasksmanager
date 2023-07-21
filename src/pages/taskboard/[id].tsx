@@ -25,7 +25,7 @@ import { setUserName,setUserId,setUserEmail, setUserTaskBoards } from '@/redux/u
 import {setMouseXLocation,setMouseYLocation,setCardMousePosition,setCollectionMousePosition} from '@/redux/mouseSlice'
 
 //Types imports
-import { TaskBoard, TaskCollection, User } from '@/interfaces/interfaces';
+import { CardCoordinates, TaskBoard, TaskCollection, User } from '@/interfaces/interfaces';
 
 //Components imports
 import TaskCollectionComponent from '@/components/taskCollection'
@@ -39,6 +39,7 @@ export default function Taskboard() {
   //Component States
   const [taskBoardInfo,setTaskBoardInfo] = useState<null|TaskBoard>(null)
   const [collectionsPositions,setCollectionsPositions] = useState<number[]>([])
+  const [cardLocations,setCardLocations] = useState<CardCoordinates[]>([])
   const taskboardId = (router.query.id) as string
 
 
@@ -52,13 +53,13 @@ export default function Taskboard() {
   const userName = useAppSelector((state) => state.user.userName)
   const userEmail = useAppSelector((state) => state.user.userEmail)
   const userTaskBoards = useAppSelector((state) => state.user.userTaskBoards)
-  //Tasks
+  //Task Window
   const taskWindowState = useAppSelector((state)=>state.task.windowState)
   //Mouse 
   const mousePositionX = useAppSelector((state)=>state.mouse.mouseX)
-  const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
   const mousePositionY = useAppSelector((state)=>state.mouse.mouseY)
-  const dragStatus = useAppSelector((state)=>state.mouse.draggingStatus)
+  const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
+  const selectedCardPosition = useAppSelector((state)=>state.mouse.mouseCardPosition)
 
   const dispatch = useAppDispatch()
 
@@ -82,7 +83,7 @@ export default function Taskboard() {
       const databaseResult = doc.data() as TaskBoard
       setTaskBoardInfo(databaseResult)
     });
-  },[router,dragStatus])
+  },[router])
 
   //Gets user info
   useEffect(() => {
@@ -122,19 +123,46 @@ export default function Taskboard() {
 
   }, [taskBoardInfo,userId])
 
+  //Every time we move the mouse the system makes some calculations to see where is every collection and the cards
   const getMousePosition = (e:any) =>{
-    const collectionElements = document.getElementsByClassName(styles.taskCollectionContainer) as HTMLCollectionOf<HTMLElement>
+      
+    //Select all the task collection elements on the page and create an array
+      const collectionElements = document.getElementsByClassName(styles.taskCollectionContainer) as HTMLCollectionOf<HTMLElement>
       const collectionElementsArr = Array.from(collectionElements)
+      
+    //Convert this array into an array with the axis location in the page of each Task Collection
       const arrayOfCollectionPositions = collectionElementsArr.map((element)=>{
         return element.offsetLeft
       })
+    
+      //Save these collections into the store
       setCollectionsPositions(arrayOfCollectionPositions)
+      
+      //Updating Mouse position relative to the scroll of the the collections
       const collections = document.getElementById('taskCollections') as HTMLElement
       dispatch(setMouseXLocation(e.pageX + Math.floor(collections.scrollLeft)))
       dispatch(setMouseYLocation(e.pageY))
+
+      //Setting what task collection the user is hovering with the mouse
       dispatch(setCollectionMousePosition(getSelectedTaskCollection()))
+      
+      //Getting cards from that collection
+      const gettingCardsCSSQuery = `#taskCollection-n${getSelectedTaskCollection()} > .${styles.taskCard}`
+      const selectedCollectionHTML = document.querySelectorAll(gettingCardsCSSQuery) as NodeListOf<HTMLElement>
+      const arrayOfCardElements = Array.from(selectedCollectionHTML)
+      const arrayOfCardCoordinates = arrayOfCardElements.map((card)=>{
+        return {
+          cardTop:card.getBoundingClientRect().top,
+          cardBottom:card.getBoundingClientRect().bottom  
+        }
+      })
+      setCardLocations(arrayOfCardCoordinates)
+      dispatch(setCardMousePosition(getSelectedCardLocation()))
 
   }
+
+
+  //Returns with collection the user is hovering with the mouse
   const getSelectedTaskCollection = ()=>{
 
     let selected = 0
@@ -150,6 +178,26 @@ export default function Taskboard() {
     return selected;
   }
 
+  /**
+   * Returns what position the card you are dragging will be
+   */
+  const getSelectedCardLocation= () =>{
+    
+    let cardYLocation = 0
+
+    for (let i = 0; i < cardLocations.length; i++) {
+      if(mousePositionY >= cardLocations[i].cardBottom){
+        cardYLocation = i+1
+        break;
+      }
+    }
+    return cardYLocation
+  }
+
+  /**
+   * Returs User information
+   * @param id 
+   */
   const getUserInfo = async(id:string) =>{
     const docRef = doc(db, "Users", id);
     const docSnap = await getDoc(docRef);
@@ -234,10 +282,11 @@ export default function Taskboard() {
         <div onMouseMove={(e) => getMousePosition(e)} id='taskCollections' className={styles.taskCollectionsContainer}>
           <div onClick={()=>dispatch(openTaskCollectionCreator())} className={styles.taskCollectionContainerCreator}>
             <h3>Create Task Collection</h3>
+            
             <Image className={styles.addCollectionIcon} src={blackAddIcon} alt={'Add Icon'}/>
           </div>
           {taskBoardInfo?.taskCollections.map((taskCollection, index)=>{
-            return <TaskCollectionComponent key={index} index={index} collectionTitle={taskCollection.collectionTitle} tasks={taskCollection.tasks}/>
+            return <TaskCollectionComponent key={index+taskCollection.collectionTitle} index={index} collectionTitle={taskCollection.collectionTitle} tasks={taskCollection.tasks}/>
           })}
         </div>
       </main>

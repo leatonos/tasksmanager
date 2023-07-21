@@ -144,6 +144,32 @@
   border-radius: 5px;
 }
 
+.taskCollectionHeader{
+  position: sticky;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  
+}
+.deleteCollectionBtn{
+  cursor: pointer;
+  z-index: 999;
+  width: 15px;
+  height: 15px;
+  background-color: var(--primary);
+  padding: 5px;
+}
+.dragCollectionBtn{
+  opacity: 0;
+  z-index: 999;
+  width: 15px;
+  height: 15px;
+  padding: 5px;
+  padding-top: 7px;
+}
+
+
+
 .taskCollectionContainerCreator{
   display: flex;
   color: black;
@@ -204,7 +230,7 @@
   border-radius: 2px;
 }
 
-.taskCard{
+.taskCard, .taskCardFloating{
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -220,18 +246,7 @@
 }
 
 
-.deleteCollectionBtn{
-  cursor: pointer;
-  position:sticky;
-  z-index: 999;
-  width: 15px;
-  height: 15px;
-  
-  top: 0px;
-  left: calc(90%);
-  background-color: var(--primary);
-  padding: 5px;
-}
+
 
 .cardHeader{
   top: 0;
@@ -258,4 +273,5 @@
   background-color: var(--primary);
   cursor: grab;
 }
+
 
