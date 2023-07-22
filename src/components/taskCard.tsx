@@ -62,22 +62,23 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     //Card Information
     const collectionIndex = taskCardInfo.collectionIndex as number
     const cardIndex = taskCardInfo.index as number
-    const currentDate = taskCardInfo.taskDueDate.toDate()
+    const currentDate:any = taskCardInfo.taskDueDate.toDate()
+    const stringDate:any = convertDateToString(currentDate)
+    const test:any = taskCardInfo.taskDueDate.toMillis()
 
 
     function convertDateToString(newDate:Date){
         const year = newDate.getFullYear()
-        const monthNum = newDate.getMonth().toString()
+        const monthNum = (newDate.getMonth()+1).toString()
         const dayNum = newDate.getDate().toString()
         let hours = newDate.getHours().toString()
         let minutes = newDate.getMinutes().toString()
         if(hours.length<2){hours='0'+hours}
+        if(minutes.length<2){minutes='0'+minutes}
         let monthStr=monthNum
         let dayStr=dayNum
         if(monthNum.length<2){monthStr = '0'+monthStr}
         if(dayNum.length<2){dayStr = '0'+dayNum} 
-
-        console.log(`${year}-${monthStr}-${dayStr}T${hours}:${minutes}`)
 
         //example
         //2018-06-12T19:30 
@@ -128,7 +129,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
     const saveNewDate=async (date:string) => {
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
-
+        console.log(date)
         try {
             await runTransaction(db, async (transaction) => {
             const sfDoc = await transaction.get(sfDocRef);
@@ -169,8 +170,6 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
-
-
     const startDraging = ()=>{
         //Fixed Card CSS changes
         setFixedCardOpacity(0.3)
@@ -208,6 +207,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
             const cardToBeCopied = taskCollectionsList[collectionIndex].tasks[cardIndex]
             
             taskCollectionsList[collectionIndex].tasks.splice(cardIndex,1)
+            console.log(selectedCollection)
             taskCollectionsList[selectedCollection].tasks.splice(selectedCardPosition,0,cardToBeCopied)
 
             transaction.update(sfDocRef, { taskCollections: taskCollectionsList });
@@ -221,15 +221,6 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         
       
     }
-
-    /*
-    
-        <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
-        <p>{convertDateToString(currentDate)}</p>
-        <input onBlur={(e) => saveNewDate(e.target.value)} type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={convertDateToString(currentDate)}/>
-
-    */
-
 
     const cardStyle:React.CSSProperties = {
         opacity:fixedCardOpacity,
@@ -250,22 +241,30 @@ export default function TaskCardComponent(taskCardInfo:Task) {
 
   return (
     <>
-    <div onMouseUp={stopDraging} className={styles.taskCardFloating} style={floatingCardStyle}>
-        <div className={styles.cardHeader}>
-            <Image draggable={false}  className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
-            <input type='text' style={{margin:'10px 0px'}} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
-            <Image className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+        <div onMouseUp={stopDraging} className={styles.taskCardFloating} style={floatingCardStyle}>
+            <div className={styles.cardHeader}>
+                <Image draggable={false}  className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
+                <input type='text' style={{margin:'10px 0px'}} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
+                <Image className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+            </div>
+            <textarea defaultValue={taskCardInfo.taskDescription}></textarea>
+            <div >
+                <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
+                <input type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={stringDate}/>
+            </div>
         </div>
-        <textarea defaultValue={taskCardInfo.taskDescription}></textarea>
-    </div>
-     <div className={styles.taskCard} style={cardStyle}>
-        <div className={styles.cardHeader}>
-            <Image draggable={false} onMouseDown={startDraging} className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
-            <input type='text' style={{margin:'10px 0px'}} onBlur={(e) => saveCardTitleChange(e.target.value)} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
-            <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+        <div className={styles.taskCard} style={cardStyle}>
+            <div className={styles.cardHeader}>
+                <Image draggable={false} onMouseDown={startDraging} className={styles.moveCardBtn} src={moveButton} alt={'Move this task card'}/>
+                <input type='text' style={{margin:'10px 0px'}} onBlur={(e) => saveCardTitleChange(e.target.value)} defaultValue={taskCardInfo.taskName} className={styles.editableText}></input>
+                <Image onClick={deleteTaskCard} className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
+            </div>
+            <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>
+            <div className={styles.dateContainer}>
+                <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
+                <input onBlur={(e) => saveNewDate(e.target.value)} type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={stringDate}/>
+            </div>
         </div>
-        <textarea onBlur={(e) => saveNewDescription(e.target.value)}  defaultValue={taskCardInfo.taskDescription}></textarea>
-    </div>
     </>
    
   

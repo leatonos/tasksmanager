@@ -157,6 +157,7 @@ export default function Taskboard() {
         }
       })
       setCardLocations(arrayOfCardCoordinates)
+      console.log(arrayOfCardCoordinates)
       dispatch(setCardMousePosition(getSelectedCardLocation()))
 
   }
@@ -282,7 +283,6 @@ export default function Taskboard() {
         <div onMouseMove={(e) => getMousePosition(e)} id='taskCollections' className={styles.taskCollectionsContainer}>
           <div onClick={()=>dispatch(openTaskCollectionCreator())} className={styles.taskCollectionContainerCreator}>
             <h3>Create Task Collection</h3>
-            
             <Image className={styles.addCollectionIcon} src={blackAddIcon} alt={'Add Icon'}/>
           </div>
           {taskBoardInfo?.taskCollections.map((taskCollection, index)=>{
