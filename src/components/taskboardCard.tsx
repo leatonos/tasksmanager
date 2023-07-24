@@ -113,7 +113,7 @@ export default function TaskBoardCardComponent(taskCardInfo:UserTaskBoard) {
         <div className={styles.taskboardCardHeader}>
           <Image onClick={deleteTaskboard} className={styles.deleteTaskboard} src={deleteImage} alt={'Delete this Taskboard'}/>
         </div>
-        <input onChange={(e) => updateTaskboardTitle(e.target.value)} defaultValue={taskCardInfo.boardName} className={styles.editableText} 
+        <input onBlur={(e) => updateTaskboardTitle(e.target.value)} defaultValue={taskCardInfo.boardName} className={styles.editableText} 
           style={{
                   marginTop:'calc(10vh - 40px)',
                   marginBottom:'10px',
