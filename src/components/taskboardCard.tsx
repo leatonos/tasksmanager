@@ -29,7 +29,7 @@ export default function TaskBoardCardComponent(taskCardInfo:UserTaskBoard) {
     const userName = useAppSelector((state) => state.user.userName)
     const userEmail = useAppSelector((state) => state.user.userEmail)
     const taskBoardId = taskCardInfo.taskBoardId
-    const taskBoardIndex = taskCardInfo.taskboardIndex
+    const taskBoardIndex = taskCardInfo.taskboardIndex as number
     const dispatch = useAppDispatch()
 
     //Router
