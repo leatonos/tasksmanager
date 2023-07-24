@@ -97,7 +97,6 @@
 .taskboardCard{
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   width: calc(25% - 20px);
   height: 30vh;
@@ -106,11 +105,29 @@
   text-align: center;
   background-color: var(--primary);
   transition: .5s;
-  cursor: pointer;
 }
 
 .taskboardCard:hover{
   transform: scale(.95);
+}
+.taskboardCardHeader{
+  position: sticky;
+  top: 0;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: end;
+  padding: 0px 10px;
+}
+
+.deleteTaskboard{
+  width: 20px;
+  padding: 5px 10px;
+  transition: .5s;
+}
+
+.deleteTaskboard:hover{
+  background-color: red;
 }
 
 .addTaskBoardIcon{

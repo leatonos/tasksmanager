@@ -2,6 +2,7 @@ import { Timestamp } from "firebase/firestore";
 
 
 export interface UserTaskBoard {
+    taskboardIndex:number
     boardMembers:string[],
     onwerId:string,
     onwerName:string,

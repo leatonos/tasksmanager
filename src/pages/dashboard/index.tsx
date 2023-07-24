@@ -1,14 +1,20 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 
+//Image Imports
+import Image from 'next/image'
+import addImage from '../../../public/add-icon-white.svg'
+//Firebase imports
 import { initializeApp } from "firebase/app";
-import { getDoc, getFirestore,setDoc,doc, onSnapshot } from "firebase/firestore";
-import { useEffect, useState } from 'react';
+import { getDoc, getFirestore,setDoc,doc, onSnapshot, runTransaction, addDoc, collection } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { useRouter } from 'next/router';
 import { firebaseConfig } from '@/firebase-config';
+
+//Next / React imports
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+//Compnentes imports
 import { TaskBoard, User, UserTaskBoard } from '@/interfaces/interfaces';
 import TaskBoardCardComponent from '@/components/taskboardCard';
 
@@ -25,9 +31,11 @@ export default function Dashboard() {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const router = useRouter()
-
+  
+  //Dashboard State
   const [userRegistred, setUserRegistred] = useState<boolean>(true)
   const [message, setMessage] = useState<string>('')
+  const [showTaskboardCreator,setShowTaskBoardCreator] = useState<boolean>(false)
 
   //Redux Selectors
   const userId = useAppSelector((state) => state.user.userId)
@@ -116,6 +124,77 @@ export default function Dashboard() {
 
   }
 
+
+
+   //Taskboard Creator
+   function TaskBoardCreator(){
+
+    const createTaskBoardAction = async (e:any) => {
+      e.preventDefault()
+      const newTaskboardName = (document.getElementById('taskboardname') as HTMLInputElement).value   
+      //First we create the new Taskboard into the Taskboard Collection
+      const docRef = await addDoc(collection(db, "TaskBoards"), {
+          boardName:newTaskboardName,
+          taskCollections:[],
+          boardMembers:[userId],
+          onwerId:userId
+      });
+      console.log("Document written with ID: ", docRef.id);
+      
+      //Now we get the generated Id for this Taskboard and register into the user Information
+      //This way it will be easier to retrieve all the taskboards from this user
+  
+      const sfDocRef = doc(db, "Users", userId);
+  
+      try {
+          await runTransaction(db, async (transaction) => {
+            const sfDoc = await transaction.get(sfDocRef);
+            if (!sfDoc.exists()) {
+              throw "Document does not exist!";
+            }
+        
+            let taskBoardList:UserTaskBoard[] = sfDoc.data().taskBoards
+            taskBoardList.push({
+              taskBoardId:docRef.id,
+              boardMembers:[userId],
+              onwerId:userId,
+              onwerName:userName,
+              boardName:newTaskboardName,
+            })
+            dispatch(setUserTaskBoards(taskBoardList))
+            transaction.update(sfDocRef, { taskBoards: taskBoardList });
+          });
+          console.log("Transaction successfully committed!");
+          setShowTaskBoardCreator(false)
+        } catch (e) {
+          console.log("Transaction failed: ", e);
+        }
+  
+        
+  
+  }
+
+
+
+    if(showTaskboardCreator){
+        return(
+        <div className='fullScreenContainer'>
+            <form className={styles.formContainer} onSubmit={createTaskBoardAction}>
+                <h1 className={styles.homeTitle}>Create a taskboard</h1>
+                <div className={styles.formFieldContainer}>
+                    <label htmlFor="taskboardname" className="form-label">Taskboard name</label>
+                    <input type="text" required className={styles.accountForm} id="taskboardname"/>
+                </div>
+                <div className={styles.buttonsContainer}>
+                    <button className={styles.loginBtn} type="submit">Create taskboard</button>
+                    <button onClick={()=>{setShowTaskBoardCreator(false)}} className={styles.signUpBtn} type="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+        )
+    }
+}
+
   if(userRegistred){
     return(
       <>
@@ -131,11 +210,16 @@ export default function Dashboard() {
           <button className={styles.signUpBtn} onClick={userSignOut} type="button">Sign Out</button>
         </div>
         <div className={styles.taskBoardCardsContainer}>
-          <TaskBoardCardComponent taskBoardId={''} boardName={''} boardMembers={[]} onwerId={''} onwerName={''}/>
+              <TaskBoardCreator/>
+              <div onClick={()=>{setShowTaskBoardCreator(true)}} className={styles.taskboardCard}>
+                  <h2>Create Taskboard</h2>
+                  <Image src={addImage} alt={''} className={styles.addTaskBoardIcon} />
+              </div>
           {userTaskBoards.map((taskBoard:UserTaskBoard,index)=>{
             return (
             <TaskBoardCardComponent
                 key={index}
+                taskboardIndex = {index}
                 taskBoardId={taskBoard.taskBoardId}
                 boardName={taskBoard.boardName}
                 boardMembers={taskBoard.boardMembers} 
