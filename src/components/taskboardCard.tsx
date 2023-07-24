@@ -116,6 +116,7 @@ export default function TaskBoardCardComponent(taskCardInfo:UserTaskBoard) {
         <input onChange={(e) => updateTaskboardTitle(e.target.value)} defaultValue={taskCardInfo.boardName} className={styles.editableText} 
           style={{
                   marginTop:'calc(10vh - 40px)',
+                  marginBottom:'10px',
                   width:'90%',
                   fontSize:'20px',
                 }}

@@ -251,6 +251,7 @@
 }
 
 .editableText{
+  padding: 2px;
   width: 33%;
   text-align: center;
   background-color: rgba(255, 255, 255, 0);
@@ -260,7 +261,8 @@
 }
 
 .editableText:hover{
-  border: 2px solid;
+  
+  outline: 2px solid white;
   border-radius: 2px;
 }
 
