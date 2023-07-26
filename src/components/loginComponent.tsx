@@ -1,6 +1,5 @@
 //Next.js imports
 import Head from 'next/head'
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 //Firebase imports
@@ -12,6 +11,10 @@ import { useState } from 'react';
 //Redux imports
 import { useAppDispatch } from '@/redux/hooks'
 import { goToCreateAccount } from '@/redux/loginSlice'
+
+//Image imports
+import Image from 'next/image'
+import googleIcon from '../../public/google_icon.png'
 
 export default function LoginComponent() {
 
@@ -88,7 +91,10 @@ export default function LoginComponent() {
               <p className={styles.messageLog}>{message}</p>
               <button className={styles.loginBtn} type="submit">Login</button>
               <button onClick={()=>dispatch(goToCreateAccount())} className={styles.signUpBtn} type="button">Create Account</button>
-              <button onClick={googleLogin} className={styles.loginBtn} type="button">Login with Google</button>
+              <button onClick={googleLogin} className={styles.googleLogin} type="button">
+                <Image style={{marginRight:'10px'}} src={googleIcon} alt={'Login with google'} width={20}/>
+                Login with Google
+              </button>
             </div>
           </form>
         </main>

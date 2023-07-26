@@ -44,8 +44,8 @@ export default function TaskCardComponent(taskCardInfo:Task) {
     const userName = useAppSelector((state) => state.user.userName)
     const userEmail = useAppSelector((state) => state.user.userEmail)
     const taskBoardId = useAppSelector((state) => state.task.taskboardId)
-    const selectedCollection = useAppSelector((state)=>state.mouse.mouseCollectionPosition)
-    const selectedCardPosition = useAppSelector((state)=>state.mouse.mouseCardPosition)
+    const selectedCollection = useAppSelector((state) => state.mouse.mouseCollectionPosition)
+    const selectedCardPosition = useAppSelector((state) => state.mouse.mouseCardPosition)
     const dispatch = useAppDispatch()
 
     //Router
@@ -106,7 +106,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
-    const saveNewDescription =async (newDescription:string) => {
+    const saveNewDescription = async (newDescription:string) => {
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
 
         try {
@@ -127,7 +127,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
-    const saveNewDate=async (date:string) => {
+    const saveNewDate= async (date:string) => {
         const sfDocRef = doc(db, "TaskBoards", taskBoardId);
         console.log(date)
         try {
@@ -170,7 +170,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
         }
     }
 
-    const startDraging = ()=>{
+    const startDraging = () =>{
         //Fixed Card CSS changes
         setFixedCardOpacity(0.3)
         setSelectable('none')
@@ -248,7 +248,7 @@ export default function TaskCardComponent(taskCardInfo:Task) {
                 <Image className={styles.deleteCardBtn} src={deleteIcon} alt={'Delete this task card'}/>
             </div>
             <textarea defaultValue={taskCardInfo.taskDescription}></textarea>
-            <div >
+            <div>
                 <label htmlFor={`duedate-${taskCardInfo.index}`}>Due date:</label>
                 <input type='datetime-local' id={`duedate-${taskCardInfo.index}`} defaultValue={stringDate}/>
             </div>
